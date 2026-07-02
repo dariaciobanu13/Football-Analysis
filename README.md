@@ -345,4 +345,4 @@ Pull requests are welcome. For significant changes, open an issue first to discu
 
 **Author:** darknick131  
 **GitHub:** [github.com/darknick131](https://github.com/darknick131)  
-**Email:** brigada.inginerilor.amarati@gmail.com
+**Email:** dariasianisia@gmail.com
