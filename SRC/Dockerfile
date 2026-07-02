@@ -6,7 +6,7 @@ WORKDIR /app
 
 # Copy the requirements or explicitly install them
 # For this demo, we can just run pip install directly
-RUN pip install --no-cache-dir pandas matplotlib seaborn openpyxl statsbombpy
+RUN pip install --no-cache-dir pandas matplotlib seaborn openpyxl statsbombpy pytest networkx
 
 # Copy the current directory contents into the container at /app
 COPY . /app/
