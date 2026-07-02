@@ -13,12 +13,12 @@
 
 > Replace the placeholders below with actual screenshots from `SRC/reports/`.
 
-| Performance Timeline | Financial ROI Matrix |
-|:---:|:---:|
+|               Performance Timeline                |            Financial ROI Matrix            |
+| :-----------------------------------------------: | :----------------------------------------: |
 | `Performance_Timeline_Match_303596_Barcelona.png` | `Financial_ROI_Match_303596_Barcelona.png` |
 
-| Consistency Violin | Improvement Radar |
-|:---:|:---:|
+|               Consistency Violin                |               Improvement Radar                |
+| :---------------------------------------------: | :--------------------------------------------: |
 | `Consistency_Violin_Match_303596_Barcelona.png` | `Improvement_Radar_Match_303596_Barcelona.png` |
 
 ---
@@ -152,18 +152,18 @@ Football-Analysis/
 
 ## Tech Stack
 
-| Layer | Library | Version | Role in this project |
-|:---|:---|:---|:---|
-| Data source | `statsbombpy` | 1.17.0 | Fetches real football event data from StatsBomb's free open API |
-| Data processing | `pandas` | 3.0.1 | DataFrame aggregation, groupby, rolling windows, Excel export |
-| Numerical | `numpy` | 2.4.3 | Vectorized QoS formula, Z-score calculation, `np.select` for status labeling |
-| Charting | `matplotlib` | — | Base rendering engine for all PNG output |
-| Charting | `seaborn` | 0.13.2 | Violin plots, line plots, bar plots with consistent styling |
-| Excel export | `openpyxl` | 3.1.5 | Writes `.xlsx` and applies red `PatternFill` to critical-alert rows |
-| Graph analysis | `networkx` | — | Directed passing graph, degree centrality to find the playmaker |
-| Runtime | Python | 3.11 | Target version pinned in CI and Docker |
-| Containerization | Docker | — | `python:3.11-slim` base; single-command execution |
-| CI/CD | GitHub Actions | — | Runs full batch pipeline on every push to `main` |
+| Layer            | Library        | Version | Role in this project                                                         |
+| :--------------- | :------------- | :------ | :--------------------------------------------------------------------------- |
+| Data source      | `statsbombpy`  | 1.17.0  | Fetches real football event data from StatsBomb's free open API              |
+| Data processing  | `pandas`       | 3.0.1   | DataFrame aggregation, groupby, rolling windows, Excel export                |
+| Numerical        | `numpy`        | 2.4.3   | Vectorized QoS formula, Z-score calculation, `np.select` for status labeling |
+| Charting         | `matplotlib`   | —       | Base rendering engine for all PNG output                                     |
+| Charting         | `seaborn`      | 0.13.2  | Violin plots, line plots, bar plots with consistent styling                  |
+| Excel export     | `openpyxl`     | 3.1.5   | Writes `.xlsx` and applies red `PatternFill` to critical-alert rows          |
+| Graph analysis   | `networkx`     | —       | Directed passing graph, degree centrality to find the playmaker              |
+| Runtime          | Python         | 3.11    | Target version pinned in CI and Docker                                       |
+| Containerization | Docker         | —       | `python:3.11-slim` base; single-command execution                            |
+| CI/CD            | GitHub Actions | —       | Runs full batch pipeline on every push to `main`                             |
 
 > No database, web framework, or message broker is required at runtime.
 
@@ -230,11 +230,11 @@ python main.py
 python main.py --match-id 303430 --team "Barcelona"
 ```
 
-| Argument | Default | Description |
-|:---|:---|:---|
-| `--match-id` | `303596` | StatsBomb Match ID |
-| `--team` | `Barcelona` | Team name — must match the exact string StatsBomb uses |
-| `--mode` | `batch` | `batch` for full analysis, `stream` for streaming simulation |
+| Argument     | Default     | Description                                                  |
+| :----------- | :---------- | :----------------------------------------------------------- |
+| `--match-id` | `303596`    | StatsBomb Match ID                                           |
+| `--team`     | `Barcelona` | Team name — must match the exact string StatsBomb uses       |
+| `--mode`     | `batch`     | `batch` for full analysis, `stream` for streaming simulation |
 
 ### Stream mode
 
@@ -307,14 +307,25 @@ Output 6: .../reports/Improvement_Radar_Match_303596_Barcelona.png
 
 ---
 
+## Known Issues
+
+| Severity    | Location            | Description                                                                                                                                                                             | Status   |
+| :---------- | :------------------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------- |
+| **Fixed**   | `qos_engine.py:217` | `print()` with a `🚨` emoji crashed on Windows terminals using `cp1250` encoding (`UnicodeEncodeError`). Replaced with plain ASCII `!!`.                                                | Resolved |
+| **Warning** | `reporter.py:121`   | seaborn `violinplot` passes `palette` without a `hue` argument. Works on seaborn 0.13.x but will raise an error when seaborn 0.14 releases. Needs `hue='Player_Name'` + `legend=False`. | Open     |
+
+---
+
 ## Roadmap
 
 The following are incomplete or stubbed features visible in the current code:
 
-- **Real weather integration** — `simulate_weather_conditions()` hardcodes `'Rain'` with a fixed severity of `0.3`. Could be replaced with an OpenWeatherMap API call using the match date and venue location.
-- **Real Kafka integration** — `KafkaSimulator` mimics a producer with `time.sleep()`; a production implementation would use `confluent-kafka` or `kafka-python` with a real broker.
-- **Test suite** — `pytest` is installed in CI but no `test_*.py` files exist in the repository.
-- **Multi-squad ROI support** — market values in `calculate_player_roi()` are hardcoded for Barcelona's 2019 squad only. Players not in the dict default to `20M€`.
+| Gap                          | Current state                                                                                                                  | What's needed                                                                   |
+| :--------------------------- | :----------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------ |
+| **Real weather integration** | `simulate_weather_conditions()` in `data_ingestion.py:30` hardcodes `'Rain'` (severity `0.3`) — no HTTP call is made           | Replace with an OpenWeatherMap API call using the match date and venue location |
+| **Real Kafka integration**   | `KafkaSimulator` in `kafka_streamer.py:32` uses a Python generator + `time.sleep(0.005)` — no broker required                  | Replace with `confluent-kafka` or `kafka-python` connected to a real broker     |
+| **Test suite**               | `pytest` is installed in CI and Docker but zero `test_*.py` files exist in the repository                                      | Unit tests for `calculate_qos_index()` and `detect_critical_nodes()` at minimum |
+| **Multi-squad ROI**          | `calculate_player_roi()` in `qos_engine.py:50` has a hardcoded dict of 11 Barcelona 2019 players; all others default to `20M€` | Dynamic lookup from a market-value data source for any team/season              |
 
 ---
 
